@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
+
+Resources:
+
+  SaveHelloFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: handler.saveHello
+      Runtime: nodejs14.x
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+      Environment:
+        Variables:
+          TABLE_NAME : !Ref ExampleTable
+      Events:
+        HelloAPI:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: POST
+
+  GetHelloFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: handler.getHello
+      Runtime: nodejs14.x
+      CodeUri: .
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+      Environment:
+        Variables:
+          TABLE_NAME : !Ref ExampleTable
+      Events:
+        HelloAPI:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: GET
+
+  ExampleTable:
+    Type: AWS::Serverless::SimpleTable
+
+
+Outputs:
+  ApiUrl:
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello"
